@@ -1,28 +1,11 @@
-import { addContact } from 'redux/contactSlice';
+// import { addContact } from 'redux/contactSlice';
+import { addContacts } from 'redux/operation';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContacts } from 'redux/selector';
 import css from './FormUser.module.css';
 import { toast } from 'react-toastify';
-import shortid from 'shortid';
 
 export default function FormUser() {
-  // const [name, setName] = useState('');
-  // const [number, setNumber] = useState('');
-
-  // const handleChange = event => {
-  //   const { name, value } = event.target;
-  //   switch (name) {
-  //     case 'name':
-  //       setName(value);
-  //       break;
-
-  //     case 'number':
-  //       setNumber(value);
-  //       break;
-  //     default:
-  //       return;
-  //   }
-  // };
   const dispatch = useDispatch();
   const contacts = useSelector(getContacts);
 
@@ -39,15 +22,14 @@ export default function FormUser() {
       );
       if (checked) return checked.name;
     };
-    const contact = {
-      id: shortid.generate(),
+    const newContact = {
       name,
       number,
     };
 
     if (nameCheck(name)) return toast.error(`${name} is already is contacts`);
 
-    dispatch(addContact(contact));
+    dispatch(addContacts(newContact));
 
     form.reset();
   };

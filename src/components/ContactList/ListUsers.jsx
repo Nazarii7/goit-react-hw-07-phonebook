@@ -1,7 +1,7 @@
 import React from 'react';
 import css from './ListUsers.module.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeContact } from 'redux/contactSlice';
+import { removeContacts } from 'redux/operation';
 import { getContacts, getFilter } from 'redux/selector';
 
 const ContactList = () => {
@@ -24,15 +24,15 @@ const ContactList = () => {
 
   return (
     <ul className={css.item}>
-      {visibilityContacts.map(({ id, name, number }) => {
+      {visibilityContacts.map(({ id, name, phone }) => {
         return (
           <li className={css.listItem} key={id}>
             <span>{name} : </span>
-            <span>{number}</span>
+            <span>{phone}</span>
             <button
               className={css.buttonItem}
               type="button"
-              onClick={event => dispatch(removeContact(id))}
+              onClick={() => dispatch(removeContacts(id))}
             >
               Delete
             </button>

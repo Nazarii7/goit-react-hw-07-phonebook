@@ -1,35 +1,52 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, isAnyOf } from '@reduxjs/toolkit';
+import { fetchContacts, addContacts, removeContacts } from './operation';
 
-const contactsInitialState = [
-  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-];
+const extraActions = [fetchContacts, addContacts, removeContacts];
+
+const getActions = type => extraActions.map(action => action[type]);
 
 const contactSlice = createSlice({
   name: 'contacts',
   initialState: {
-    contacts: contactsInitialState,
+    contacts: {
+      items: [],
+      isLoading: false,
+      error: null,
+    },
     filter: '',
   },
   reducers: {
-    addContact(state, action) {
-      state.contacts.push(action.payload);
-    },
-    removeContact(state, action) {
-      const someIndex = state.contacts.findIndex(
-        contact => contact.id === action.payload
-      );
-      state.contacts.splice(someIndex, 1);
-    },
     filterContact(state, action) {
       state.filter = action.payload;
     },
   },
+  extraReducers: builder =>
+    builder
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.contacts.items = action.payload;
+      })
+      .addCase(addContacts.fulfilled, (state, action) => {
+        state.contacts.items.push(action.payload);
+      })
+      .addCase(removeContacts.fulfilled, (state, action) => {
+        const index = state.contacts.items.findIndex(
+          contact => contact.id !== action.payload
+        );
+        state.contacts.items.splice(index, 1);
+      })
+      .addMatcher(isAnyOf(...getActions('pending')), state => {
+        state.contacts.isLoading = true;
+      })
+      .addMatcher(isAnyOf(...getActions('rejected')), (state, action) => {
+        state.contacts.isLoading = false;
+        state.contacts.error = action.payload;
+      })
+      .addMatcher(isAnyOf(...getActions('fulfilled')), state => {
+        state.contacts.isLoading = false;
+        state.contacts.error = null;
+      }),
 });
 
-export const { addContact, removeContact, filterContact } =
-  contactSlice.actions;
+export const { filterContact } = contactSlice.actions;
 
 export default contactSlice.reducer;
